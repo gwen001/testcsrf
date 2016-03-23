@@ -6,6 +6,7 @@ Note this is an automated tool, manual check still required.
 Usage: testcsrf.php [OPTIONS] -o <token> -f <request_file>
 
 Options:
+	-f	source file of the orignal request
 	-h	print this help
 	-m	test mode, default all
 		0: remove the token

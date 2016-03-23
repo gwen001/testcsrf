@@ -145,7 +145,7 @@ class TestCsrf
 		if( $this->mode==-1 || $this->mode==3 ) {
 			$r = clone $this->reference;
 			$url = $r->getUrl();
-			$url .= strstr('?',$url) ? '&' : '?';
+			$url .= strstr($url,'?') ? '&' : '?';
 			$r->setUrl( $url.$r->getPost() );
 			$r->setMethod( 'GET' );
 			$r->setPost( '' );
