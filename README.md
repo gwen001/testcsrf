@@ -15,12 +15,12 @@ Options:
 	-o	token name
 	-r	do not follow redirection
 	-s	force https
-	-t	set tolerance for result output, default=5
+	-t	set tolerance for result output, default=5%
 
 Examples:
-	testcsrf.php -p "§=10" -f request.txt
-	testcsrf.php -s -p "^=bob,alice,jim" -f request.txt
-	testcsrf.php -t 10 -s -p "|=5;^=bob,alice,jim;$=123,456,789" -f request.txt
+	testcsrf.php -o magic_token -f request.txt
+	testcsrf.php -r -s -o magic_token -f request.txt
+	testcsrf.php -t 10 -m 1 -o magic_token -f request.txt
 ```
 
 I don't believe in license.  
