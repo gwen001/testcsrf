@@ -21,6 +21,10 @@ include( 'TestCsrfRequest.php' );
 
 	for ($i = 1; $i <= $argc; $i++) {
 		switch ($_SERVER['argv'][$i]) {
+			case '-cl':
+				$reference->setContentLength( true );
+				break;
+
 			case '-f':
 				$request_file = $_SERVER['argv'][$i + 1];
 				$i++;
@@ -67,7 +71,6 @@ include( 'TestCsrfRequest.php' );
 	if( !$reference->loadFile($request_file) ) {
 		Utils::help('Request file not found!');
 	}
-	$reference->setSsl( $ssl );
 
 	$testcsrf->setReference( $reference );
 	$testcsrf->runReference();

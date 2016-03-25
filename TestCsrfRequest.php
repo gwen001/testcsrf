@@ -29,6 +29,8 @@ class TestCsrfRequest
 
 	private $post = '';
 
+	private $content_length = false;
+
 	private $result = '';
 	private $result_length = 0;
 	private $result_code = 0;
@@ -92,6 +94,15 @@ class TestCsrfRequest
 	}
 	public function setSsl( $v ) {
 		$this->ssl = (bool)$v;
+		return true;
+	}
+
+
+	public function getContentLength() {
+		return $this->content_length;
+	}
+	public function setContentLength( $v ) {
+		$this->content_length = (bool)$v;
 		return true;
 	}
 
@@ -182,10 +193,12 @@ class TestCsrfRequest
 		curl_setopt($c, CURLOPT_COOKIEJAR, $this->cookie_file);
 		curl_setopt($c, CURLOPT_COOKIEFILE, $this->cookie_file);
 		if( strlen($this->post) ) {
-			// this header seems to fuck the request...
-			//$surplace['Content-Length'] = 'Content-Length: '.strlen( $this->post );
-			// but this works great!
-			$surplace['Content-Length'] = 'Content-Length: 0';
+			if( $this->content_length ) {
+				// this header seems to fuck the request...
+				//$surplace['Content-Length'] = 'Content-Length: '.strlen( $this->post );
+				// but this works great!
+				$surplace['Content-Length'] = 'Content-Length: 0';
+			}
 			curl_setopt($c, CURLOPT_POST, true);
 			curl_setopt($c, CURLOPT_POSTFIELDS, $this->post);
 		}
@@ -208,6 +221,7 @@ class TestCsrfRequest
 		$t_request = explode( "\n\n", $request ); // separate headers and post parameters
 		$t_headers = explode( "\n", $t_request[0] ); // headers
 		$h_request = array_map( function($str){return explode(':',trim($str));}, $t_headers ); // splited headers
+		array_shift( $h_request );
 
 		$first = array_shift( $t_headers ); // first ligne is: method, url, http version
 		list($method,$url,$http) = explode( ' ', $first );
@@ -227,14 +241,8 @@ class TestCsrfRequest
 
 			switch( $h )
 			{
-				case 'Accept':
-				case 'Accept-Language':
-				//case 'Accept-Encoding':
-				case 'Connection':
-				case 'Content-Type':
-				case 'Referer':
-				case 'User-Agent':
-					$h_replay[ $h ] = $h.': '.trim( implode(':',$header) );
+				case 'Accept-Encoding':
+				case 'Content-Length':
 					break;
 
 				case 'Cookie':
@@ -245,8 +253,16 @@ class TestCsrfRequest
 					$host = trim( implode(':',$header) );
 					break;
 
-				case 'Content-Length':
+				/*case 'Accept':
+				case 'Accept-Language':
+				case 'Connection':
+				case 'Content-Type':
+				case 'Referer':
+				case 'User-Agent':
+				case 'x-ajax-replace':
+				case 'X-Requested-With':*/
 				default:
+					$h_replay[ $h ] = $h.': '.trim( implode(':',$header) );
 					break;
 			}
 		}

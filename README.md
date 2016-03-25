@@ -1,11 +1,12 @@
 # TestCsrf
-PHP tool to test Cross Site Request Forgery aka CSRF.  
-Note this is an automated tool, manual check still required.  
+PHP tool to test Cross Site Request Forgery aka CSRF.
+Note this is an automated tool, manual check still required.
 
 ```
 Usage: testcsrf.php [OPTIONS] -o <token> -f <request_file>
 
 Options:
+	-cl	force Content-Length header
 	-f	source file of the orignal request
 	-h	print this help
 	-m	test mode, default all
@@ -24,5 +25,5 @@ Examples:
 	testcsrf.php -t 10 -m 1 -o magic_token -f request.txt
 ```
 
-I don't believe in license.  
-You can do want you want with this program.  
+I don't believe in license.
+You can do want you want with this program.

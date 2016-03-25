@@ -186,42 +186,6 @@ class TestCsrf
 		return $n_injection;
 	}
 
-/*
-		foreach( $this->t_payloads as $char=>$payloads )
-		{
-			$n_request = 0;
-			echo "\n-> Injection: C=".$char.", P=".implode(self::PAYLOADS_VALUE_DELIM,$payloads)."\n";
-
-			foreach( $payloads as $p )
-			{
-				$r = clone $this->reference;
-
-				$n_injection = 0;
-				$n_injection += $this->inject( $r, $char, $p, 'getUrl', 'setUrl' );
-				foreach( $this->reference->getHeaders() as $k=>$v ) {
-					$n_injection += $this->inject( $r, $char, $p, 'getHeader', 'setHeader', $k );
-				}
-				$n_injection += $this->inject( $r, $char, $p, 'getCookies', 'setCookies' );
-				$n_injection += $this->inject( $r, $char, $p, 'getPost', 'setPost' );
-
-				if( $n_injection ) {
-					$r->request();
-					//var_dump( $r );
-					//$r->export();
-					$this->result( $r );
-					$this->t_result[] = $r;
-					$n_request += $n_injection;
-				}
-
-				unset( $r );
-			}
-
-			echo $n_injection ." injection point found, ".$n_request." request performed\n";
-		}
-
-		echo "\n";
-*/
-
 
 	private function inject( $r, $char, $payload, $getter, $setter, $param='' )
 	{
