@@ -35,9 +35,9 @@ class TestCsrf
 	/**
 	 * @var array
 	 *
-	 * string replaced
+	 * value of the token to remove
 	 */
-	private $injection_string = null;
+	private $token_value = null;
 
 	/**
 	 * @var array
@@ -116,24 +116,28 @@ class TestCsrf
 	{
 		$this->reference->request();
 		//var_dump( $this->reference );
-		//exit();
+		//$this->reference->export();
 
 		$this->_tolerance = (int)($this->reference->getResultLength() * $this->getTolerance() / 100);
 		echo "\n-> Reference: RC=" . $this->reference->getResultCode() . ', RL=' . $this->reference->getResultLength() . ', T=' . $this->getTolerance() . '%, T2=' . $this->_tolerance . "\n";
+		//exit();
 	}
 
 
 	public function run()
 	{
 		$n_injection = $this->preparePayloads();
-		if( !$n_injection || !$this->injection_string ) {
+		if( !$n_injection || !$this->token_value ) {
 			Utils::help( 'Token not found!' );
 		}
 
 		foreach ($this->getPayloads() as $mode=>$p)
 		{
 			$r = clone $this->reference;
-			$r->setPost( preg_replace('#'.$this->injection_string.'#',$p,$r->getPost()) );
+			$params = $r->getParams();
+			$params = preg_replace( '#'.$this->token_name.'#', $p[0], $params );
+			$params = preg_replace( '#'.$this->token_value.'#', $p[1], $params );
+			$r->setParams( $params );
 			$r->request();
 			//var_dump( $r );
 			//$r->export();
@@ -142,13 +146,14 @@ class TestCsrf
 			unset( $r );
 		}
 
-		if( $this->mode==-1 || $this->mode==3 ) {
+		if( ($this->mode==-1 || $this->mode==3) && !$this->reference->isMultipart() )
+		{
 			$r = clone $this->reference;
 			$url = $r->getUrl();
 			$url .= strstr($url,'?') ? '&' : '?';
-			$r->setUrl( $url.$r->getPost() );
+			$r->setUrl( $url.$r->getParams() );
 			$r->setMethod( 'GET' );
-			$r->setPost( '' );
+			$r->setParams( '' );
 			$r->request();
 			//var_dump( $r );
 			//$r->export();
@@ -163,22 +168,27 @@ class TestCsrf
 
 	private function preparePayloads()
 	{
-		preg_match_all('#' . $this->token_name . '=([^\&]*)#', $this->reference->getPost(), $matches);
+		if( $this->reference->isMultipart() ) {
+			preg_match_all('#"' . $this->token_name . '"\n\n(.*)\n#', $this->reference->getParams(), $matches);
+		} else {
+			preg_match_all('#' . $this->token_name . '=([^\&]*)#', $this->reference->getParams(), $matches);
+		}
 		//var_dump($matches);
-		$n_injection = count($matches[0]);
+		$n_injection = count( $matches[0] );
 
 		if( $n_injection ) {
-			$this->injection_string = $matches[0][0];
+			//$this->injection_string = $matches[0][0];
+			$this->token_value = $matches[1][0];
 			$token_value = $matches[1][0];
 
 			if ($this->mode == -1 || $this->mode == 0) {
-				$this->addPayload( 0, '' );
+				$this->addPayload( 0, array(uniqid(),'z') );
 			}
 			if ($this->mode == -1 || $this->mode == 1) {
-				$this->addPayload( 1, $this->token_name . '=' . strrev($token_value) );
+				$this->addPayload( 1, array($this->token_name,strrev($token_value)) );
 			}
 			if ($this->mode == -1 || $this->mode == 2) {
-				$this->addPayload( 2, $this->token_name . '=' );
+				$this->addPayload( 2, array($this->token_name,'') );
 			}
 			//var_dump($this->getPayloads());
 		}
@@ -200,7 +210,7 @@ class TestCsrf
 				$p = $payload;
 			}
 
-			$r->$setter(str_replace($m, $char . $p . $char, $r->$getter($param)), $param);
+			$r->$setter( str_replace($m, $char . $p . $char, $r->$getter($param)), $param );
 			//var_dump( $r->$getter($param) );
 		}
 
@@ -255,8 +265,8 @@ class TestCsrf
 
 	private function isReference( $request )
 	{
-		if( $request->getUrl()!=$this->reference->getUrl() || $request->getHeaders()!=$this->reference->getHeaders()
-			|| $request->getCookies()!=$this->reference->getCookies() || $request->getPost()!=$this->reference->getPost() ) {
+		if( $request->getUrl()!=$this->reference->getUrl() || $request->getHeaders(true)!=$this->reference->getHeaders(true)
+			|| $request->getCookies(true)!=$this->reference->getCookies(true) || $request->getParams(true)!=$this->reference->getParams(true) ) {
 			return false;
 		}
 

@@ -7,6 +7,7 @@
  */
 
 include( 'Utils.php' );
+include( 'HttpRequest.php' );
 include( 'TestCsrf.php' );
 include( 'TestCsrfRequest.php' );
 
@@ -70,6 +71,10 @@ include( 'TestCsrfRequest.php' );
 {
 	if( !$reference->loadFile($request_file) ) {
 		Utils::help('Request file not found!');
+	}
+
+	if( strstr($reference->export(false),$testcsrf->getToken()) === false ) {
+		Utils::help('Token not found!');
 	}
 
 	$testcsrf->setReference( $reference );
