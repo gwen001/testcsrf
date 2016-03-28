@@ -112,6 +112,7 @@ class TestCsrf
 		return true;
 	}
 
+
 	public function runReference()
 	{
 		$this->reference->request();
@@ -128,7 +129,7 @@ class TestCsrf
 	{
 		$n_injection = $this->preparePayloads();
 		if( !$n_injection || !$this->token_value ) {
-			Utils::help( 'Token not found!' );
+			exit( "Token not found!\n" );
 		}
 
 		foreach ($this->getPayloads() as $mode=>$p)
@@ -194,27 +195,6 @@ class TestCsrf
 		}
 
 		return $n_injection;
-	}
-
-
-	private function inject( $r, $char, $payload, $getter, $setter, $param='' )
-	{
-		preg_match_all('#\\' . $char . '([^' . $this->_chars . ']+)\\' . $char . '#', $this->reference->$getter($param), $matches); // original values cannot be empty
-		//var_dump( $matches );
-		$cnt = count($matches[0]);
-
-		foreach( $matches[0] as $k=>$m ) {
-			if( $this->isRelative($payload) ) {
-				$p = (int)$matches[1][$k] + $payload;
-			} else {
-				$p = $payload;
-			}
-
-			$r->$setter( str_replace($m, $char . $p . $char, $r->$getter($param)), $param );
-			//var_dump( $r->$getter($param) );
-		}
-
-		return $cnt;
 	}
 
 

@@ -57,6 +57,9 @@ include( 'TestCsrfRequest.php' );
 				$testcsrf->setTolerance($_SERVER['argv'][$i + 1]);
 				$i++;
 				break;
+
+			default:
+				Utils::help('Unknown option: '.$_SERVER['argv'][$i]);
 		}
 	}
 
@@ -69,6 +72,8 @@ include( 'TestCsrfRequest.php' );
 
 // init
 {
+	$testcsrf->setReference( $reference );
+
 	if( !$reference->loadFile($request_file) ) {
 		Utils::help('Request file not found!');
 	}
@@ -77,7 +82,6 @@ include( 'TestCsrfRequest.php' );
 		Utils::help('Token not found!');
 	}
 
-	$testcsrf->setReference( $reference );
 	$testcsrf->runReference();
 }
 // ---
