@@ -89,7 +89,7 @@ class TestCsrf
 		return $this->tolerance;
 	}
 	public function setTolerance( $v ) {
-		$this->tolerance = (int)$v;
+		$this->tolerance = (float)$v;
 		return true;
 	}
 
@@ -204,7 +204,7 @@ class TestCsrf
 		$diff = $r->getResultLength() - $this->reference->getResultLength();
 		$text = 'M='.$mode.', U=' . $r->getUrl() . ', C=' . $r->getResultCode() . ', L=' . $r->getResultLength() . ', D=' . $diff;
 
-		if( abs($diff) < $this->_tolerance )
+		if( abs($diff) <= $this->_tolerance )
 		{
 			// match ?!
 			if( $this->isReference($r) ) {
@@ -245,7 +245,7 @@ class TestCsrf
 
 	private function isReference( $request )
 	{
-		if( $request->getUrl()!=$this->reference->getUrl() || $request->getHeaders(true)!=$this->reference->getHeaders(true)
+		if( $request->getUrl(true)!=$this->reference->getUrl(true) || $request->getHeaders(true)!=$this->reference->getHeaders(true)
 			|| $request->getCookies(true)!=$this->reference->getCookies(true) || $request->getParams(true)!=$this->reference->getParams(true) ) {
 			return false;
 		}
